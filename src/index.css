@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,8 +95,19 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: 'Nunito', 'Inter', 'Segoe UI', Arial, sans-serif;
   }
+}
+
+/* Polaris: a slight twinkle animation for the star svg */
+@keyframes polaris-twinkle {
+  0% { filter: drop-shadow(0 0 8px #fffde8) brightness(1.08); }
+  45% { filter: drop-shadow(0 0 13px #ffe470) brightness(1.17);}
+  55% { filter: drop-shadow(0 0 15px #fffbe6) brightness(1.22);}
+  100% { filter: drop-shadow(0 0 8px #fffde8) brightness(1.07);}
+}
+svg[aria-label="Polaris star"] {
+  animation: polaris-twinkle 3s infinite;
 }
