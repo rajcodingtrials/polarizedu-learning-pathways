@@ -1,11 +1,12 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import PolarisStar from "../components/PolarisStar";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Placeholder image for north star scene
-const polarisImg = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"; // Elder holding hand of a child
+// Use uploaded image as banner
+const polarisImg = "/lovable-uploads/b1b7b003-3446-4a61-a3df-25d57c681252.png";
 
 const Index = () => {
   const { login } = useAuth();
@@ -32,8 +33,14 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Black Bar */}
-      <div className="w-full h-12 bg-black flex items-center px-8">
-        <span className="text-white text-lg font-bold tracking-wide">PolarizEdu</span>
+      <div className="w-full h-12 bg-black flex items-center px-8 justify-start">
+        {/* Company Title */}
+        <span className="text-white text-lg font-bold tracking-wide mr-10">PolarizEd</span>
+        {/* Left Tabs */}
+        <div className="flex space-x-6">
+          <Link to="/our-story" className="text-white text-base font-medium hover:underline focus:underline transition">Our Story</Link>
+          <Link to="/team" className="text-white text-base font-medium hover:underline focus:underline transition">Team</Link>
+        </div>
       </div>
 
       {/* Banner image */}
@@ -41,7 +48,7 @@ const Index = () => {
         <img
           src={polarisImg}
           alt="Elder holding hand of a child"
-          className="mx-auto rounded-b-2xl shadow w-full max-w-screen-md object-cover h-72"
+          className="w-full object-cover max-h-80"
           style={{ objectPosition: "center top" }}
         />
       </div>

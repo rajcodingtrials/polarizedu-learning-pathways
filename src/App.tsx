@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,8 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Personalized from "./pages/Personalized";
+import OurStory from "./pages/OurStory";
+import Team from "./pages/Team";
 import { AuthProvider } from "./components/AuthContext";
 import RequireAuth from "./components/RequireAuth";
 
@@ -23,6 +24,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/our-story" element={<OurStory />} />
+            <Route path="/team" element={<Team />} />
             <Route
               path="/home"
               element={

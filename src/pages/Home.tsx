@@ -37,7 +37,7 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-900 via-indigo-900 to-black">
+    <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="absolute top-4 right-6">
         <button
           onClick={logout}
@@ -61,27 +61,28 @@ const Home = () => {
           <div className="mt-6 flex flex-col gap-4 w-full">
             <h2 className="text-lg font-semibold mb-4 text-center text-blue-800">What do you want to learn today?</h2>
             <div className="flex flex-col gap-3">
+              {/* Make choices bold */}
               <button
                 onClick={() => handleChoice("Math")}
-                className="bg-blue-300 hover:bg-blue-400 text-blue-900 font-medium py-2 rounded-lg shadow"
+                className="bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-2 rounded-lg shadow"
               >
                 Math
               </button>
               <button
                 onClick={() => handleChoice("English")}
-                className="bg-green-200 hover:bg-green-300 text-green-900 font-medium py-2 rounded-lg shadow"
+                className="bg-green-200 hover:bg-green-300 text-green-900 font-bold py-2 rounded-lg shadow"
               >
                 English
               </button>
               <button
                 onClick={() => handleChoice("Science")}
-                className="bg-pink-200 hover:bg-pink-300 text-pink-900 font-medium py-2 rounded-lg shadow"
+                className="bg-pink-200 hover:bg-pink-300 text-pink-900 font-bold py-2 rounded-lg shadow"
               >
                 Science
               </button>
               <button
                 onClick={() => handleChoice("Personalized")}
-                className="bg-purple-200 hover:bg-purple-300 text-purple-900 font-medium py-2 rounded-lg shadow"
+                className="bg-purple-200 hover:bg-purple-300 text-purple-900 font-bold py-2 rounded-lg shadow"
               >
                 Personalized
               </button>
