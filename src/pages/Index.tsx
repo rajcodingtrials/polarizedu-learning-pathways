@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PolarisStar from "../components/PolarisStar";
@@ -6,7 +5,7 @@ import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 // Placeholder image for north star scene
-const polarisImg = "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&w=600&q=80";
+const polarisImg = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"; // Elder holding hand of a child
 
 const Index = () => {
   const { login } = useAuth();
@@ -31,22 +30,27 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-900 via-indigo-900 to-black relative">
-      <div className="absolute inset-x-0 top-0 pt-10 z-0">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Top Black Bar */}
+      <div className="w-full h-12 bg-black flex items-center px-8">
+        <span className="text-white text-lg font-bold tracking-wide">PolarizEdu</span>
+      </div>
+
+      {/* Banner image */}
+      <div className="w-full flex justify-center bg-white">
         <img
           src={polarisImg}
-          alt="Polaris night sky"
-          className="mx-auto rounded-xl shadow-lg w-[480px] h-[280px] object-cover opacity-85"
-          style={{ border: "3px solid #fffde8" }}
+          alt="Elder holding hand of a child"
+          className="mx-auto rounded-b-2xl shadow w-full max-w-screen-md object-cover h-72"
+          style={{ objectPosition: "center top" }}
         />
       </div>
-      <div className="relative z-10 flex flex-col items-center mt-44">
-        <PolarisStar />
-        <h1 className="text-5xl font-extrabold text-white tracking-wide drop-shadow-lg mb-2 font-sans">PolarizEdu</h1>
-        <h2 className="text-xl mb-6 text-blue-100 font-semibold tracking-wide">Walking beside the child, lighting the way</h2>
+
+      <div className="flex flex-col items-center flex-1 justify-center pt-6">
+        <h2 className="text-2xl font-semibold text-gray-800 mt-2 mb-2">With Every Step, We Grow</h2>
         <form
           onSubmit={onLogin}
-          className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-8 py-8 w-80 flex flex-col"
+          className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-8 py-8 w-80 flex flex-col mt-4"
         >
           <label className="font-semibold text-gray-700 mb-2">Username</label>
           <input
