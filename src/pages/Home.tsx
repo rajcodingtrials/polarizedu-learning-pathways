@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -54,7 +54,8 @@ const scienceQuestions = [
   },
 ];
 
-const COCOMELON_URL = "https://www.youtube.com/watch?v=z3-Oy8dpV-A";
+// EMBEDDED YOUTUBE VIDEO ID for Cocomelon Wheels on the Bus
+const COCOMELON_EMBED_URL = "https://www.youtube.com/embed/rHvCQ_gn1bQ?autoplay=1";
 
 type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
 type EnglishQ = { question: string; img: string; answer: string; hint: string; };
@@ -67,12 +68,10 @@ const Home = () => {
     subject: string,
     idx: number
   }>(null);
-  const [correct, setCorrect] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [input, setInput] = useState("");
   const [showFeedback, setShowFeedback] = useState<null | "correct" | "wrong">(null);
   const navigate = useNavigate();
-  const videoWindow = useRef<Window | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!user) return null;
@@ -88,7 +87,6 @@ const Home = () => {
     setShowChoices(true);
     setSession(null);
     setShowFeedback(null);
-    setCorrect(false);
     setShowVideo(false);
     setInput("");
   }
@@ -98,7 +96,6 @@ const Home = () => {
     setShowChoices(false);
     setShowFeedback(null);
     setShowVideo(false);
-    setCorrect(false);
     setInput("");
   }
 
@@ -111,22 +108,24 @@ const Home = () => {
     }
   }
 
+  // NEW: Show embedded Cocomelon video, auto-advance after 3 minutes
   function handleShowCocomelon() {
-    if (videoWindow.current == null || videoWindow.current.closed) {
-      videoWindow.current = window.open(COCOMELON_URL, "_blank", "noopener");
-      timerRef.current = setTimeout(() => {
-        if (videoWindow.current && !videoWindow.current.closed) {
-          videoWindow.current.close();
-        }
-        videoWindow.current = null;
-        setShowVideo(false);
-        setShowFeedback(null);
-        setInput("");
-        onNextQuestion();
-      }, 180_000); // 3 minutes
-    }
     setShowVideo(true);
+    // Set timer to auto-proceed after 3 minutes (180_000 ms)
+    timerRef.current = setTimeout(() => {
+      setShowVideo(false);
+      setShowFeedback(null);
+      setInput("");
+      onNextQuestion();
+    }, 180_000);
   }
+
+  // Clean up timer on unmount or when video closes early
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   function onChoiceAnswer(ans: string) {
     if (!session) return;
@@ -152,6 +151,10 @@ const Home = () => {
   }
 
   function onNextQuestion() {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     if (!session) return;
     const qlist = currentQuestions();
     if (session.idx + 1 < qlist.length) {
@@ -170,19 +173,16 @@ const Home = () => {
   }
 
   function onQuit() {
+    // Reset everything
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setSession(null);
     setShowChoices(true);
     setShowFeedback(null);
     setShowVideo(false);
     setInput("");
-    // Clean up when quitting (close any video tab and timer)
-    if (videoWindow.current && !videoWindow.current.closed) {
-      videoWindow.current.close();
-    }
-    videoWindow.current = null;
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
   }
 
   // Main Content Render
@@ -235,19 +235,29 @@ const Home = () => {
   } else if (session && showVideo) {
     mainContent = (
       <div className="flex flex-col items-center justify-center w-full gap-4 mt-10">
-        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with Cocomelon!<br />A new tab has been opened.</div>
-        <div className="text-gray-600">(The video will close after 3 minutes and the next question will appear.)</div>
+        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with Cocomelon!</div>
+        <div className="text-gray-600">(Your video will end after 3 minutes and the next question will appear.)</div>
+        <div className="mt-6 aspect-video w-full max-w-xl rounded-xl overflow-hidden shadow-lg border-4 border-yellow-200 bg-black">
+          <iframe
+            width="100%"
+            height="315"
+            src={COCOMELON_EMBED_URL}
+            title="Cocomelon Wheels on the Bus"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+        </div>
         <button
           className="mt-6 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold rounded shadow"
           onClick={() => {
-            if (videoWindow.current && !videoWindow.current.closed) {
-              videoWindow.current.close();
-            }
-            videoWindow.current = null;
-            if (timerRef.current) clearTimeout(timerRef.current);
             setShowVideo(false);
             setShowFeedback(null);
             setInput("");
+            if (timerRef.current) {
+              clearTimeout(timerRef.current);
+              timerRef.current = null;
+            }
             onNextQuestion();
           }}
         >
