@@ -9,6 +9,7 @@ const motivational = {
     "Hope your vacation went great. Let’s start from where you left off last week. You’ve made a great job learning about making effective conversations.",
 };
 
+// Sample question sets for Math/English/Science beginner-friendly
 const mathQuestions = [
   {
     question: "What is 2 + 3?",
@@ -33,9 +34,9 @@ const englishQuestions = [
   },
   {
     question: "Spell the word in the picture.",
-    img: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80",
-    answer: "java",
-    hint: "This is the name of a programming language.",
+    img: "/lovable-uploads/5c0a69c6-3b54-41da-9195-5296461296d4.png",
+    answer: "ear",
+    hint: "A three-letter word from the word LEARN.",
   },
 ];
 
@@ -55,6 +56,10 @@ const scienceQuestions = [
 ];
 
 const COCOMELON_VIDEO = "https://www.youtube.com/embed/z3-Oy8dpV-A?autoplay=1&controls=1";
+
+type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
+type EnglishQ = { question: string; img: string; answer: string; hint: string; };
+type HomeQuestion = MathOrScienceQ | EnglishQ;
 
 const Home = () => {
   const { user, logout } = useAuth();
@@ -96,7 +101,7 @@ const Home = () => {
     setInput("");
   }
 
-  function currentQuestions() {
+  function currentQuestions(): HomeQuestion[] {
     switch (session?.subject) {
       case "Math": return mathQuestions;
       case "English": return englishQuestions;
@@ -107,8 +112,8 @@ const Home = () => {
 
   function onChoiceAnswer(ans: string) {
     if (!session) return;
-    const q = currentQuestions()[session.idx];
-    if (q?.answer.toString().toLowerCase() === ans.toLowerCase()) {
+    const q = currentQuestions()[session.idx] as MathOrScienceQ;
+    if ("choices" in q && q.answer.toString().toLowerCase() === ans.toLowerCase()) {
       setShowFeedback("correct");
       setTimeout(() => setShowVideo(true), 1000);
     } else {
@@ -119,8 +124,8 @@ const Home = () => {
   function onInputAnswerSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session) return;
-    const q = currentQuestions()[session.idx];
-    if (q?.answer.toString().toLowerCase() === input.trim().toLowerCase()) {
+    const q = currentQuestions()[session.idx] as EnglishQ;
+    if ("answer" in q && q.answer.toString().toLowerCase() === input.trim().toLowerCase()) {
       setShowFeedback("correct");
       setTimeout(() => setShowVideo(true), 1000);
     } else {
@@ -246,7 +251,8 @@ const Home = () => {
         </div>
       );
     } else {
-      if (session.subject === "Math" || session.subject === "Science") {
+      if ("choices" in q) {
+        // Math or Science (choose type guard for .choices)
         mainContent = (
           <div className="rounded-xl bg-white/90 shadow-lg p-8 flex flex-col items-center max-w-lg mx-auto mb-6">
             <img
@@ -272,7 +278,7 @@ const Home = () => {
               ))}
             </div>
             {showFeedback === "correct" && (
-              <div className="mt-3 text-green-700 text-lg font-semibold">Correct. Nice work!</div>
+              <div className="mt-3 text-green-700 text-lg font-semibold">Correct. Nice work</div>
             )}
             {showFeedback === "wrong" && (
               <div className="mt-3 text-red-700 text-lg font-semibold">
@@ -297,7 +303,8 @@ const Home = () => {
             </div>
           </div>
         );
-      } else if (session.subject === "English") {
+      } else if ("answer" in q && "hint" in q) {
+        // English
         mainContent = (
           <div className="rounded-xl bg-white/90 shadow-lg p-8 flex flex-col items-center max-w-lg mx-auto mb-6">
             <img
@@ -322,7 +329,7 @@ const Home = () => {
               </button>
             </form>
             {showFeedback === "correct" && (
-              <div className="mt-3 text-green-700 text-lg font-semibold">Correct. Nice work!</div>
+              <div className="mt-3 text-green-700 text-lg font-semibold">Correct. Nice work</div>
             )}
             {showFeedback === "wrong" && (
               <div className="mt-3 text-red-700 text-lg font-semibold">
@@ -372,4 +379,3 @@ const Home = () => {
 };
 
 export default Home;
-

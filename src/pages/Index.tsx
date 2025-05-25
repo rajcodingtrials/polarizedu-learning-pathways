@@ -5,8 +5,8 @@ import PolarisStar from "../components/PolarisStar";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Banner image of an elder holding a child's hand walking away
-const polarisImg = "/lovable-uploads/b1b7b003-3446-4a61-a3df-25d57c681252.png";
+// Use the uploaded image as the banner
+const polarisImg = "/lovable-uploads/5c0a69c6-3b54-41da-9195-5296461296d4.png";
 
 const Index = () => {
   const { login } = useAuth();
@@ -94,4 +94,3 @@ const Index = () => {
 };
 
 export default Index;
-
