@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import PolarisStar from "../components/PolarisStar";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -33,25 +32,29 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Black Bar */}
-      <div className="w-full h-12 bg-black flex items-center px-8 justify-start">
+      <div className="w-full h-12 bg-black flex items-center px-8 justify-between">
         {/* Company Title */}
-        <span className="text-white text-lg font-bold tracking-wide mr-10">
+        <span className="text-white text-lg font-bold tracking-wide">
           PolarizEd
         </span>
-        {/* Left Tabs */}
+        {/* Right Tabs */}
         <div className="flex space-x-6">
           <Link to="/our-story" className="text-white text-base font-medium hover:underline focus:underline transition">Our Story</Link>
           <Link to="/team" className="text-white text-base font-medium hover:underline focus:underline transition">Team</Link>
         </div>
       </div>
 
-      {/* Banner image below black bar, full width */}
+      {/* Banner image, full width, fully shown */}
       <div className="w-full flex justify-center bg-white">
         <img
           src={polarisImg}
-          alt="Elder holding hand of a child walking away"
-          className="w-full object-cover max-h-80"
-          style={{ objectPosition: "center top" }}
+          alt="Banner"
+          className="w-full h-[min(40vw,400px)] object-contain"
+          style={{
+            objectFit: "contain",
+            objectPosition: "center",
+            backgroundColor: "#fff"
+          }}
         />
       </div>
 

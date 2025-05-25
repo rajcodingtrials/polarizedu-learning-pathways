@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -55,7 +54,7 @@ const scienceQuestions = [
   },
 ];
 
-const COCOMELON_VIDEO = "https://www.youtube.com/embed/z3-Oy8dpV-A?autoplay=1&controls=1";
+const COCOMELON_URL = "https://www.youtube.com/watch?v=z3-Oy8dpV-A";
 
 type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
 type EnglishQ = { question: string; img: string; answer: string; hint: string; };
@@ -73,6 +72,8 @@ const Home = () => {
   const [input, setInput] = useState("");
   const [showFeedback, setShowFeedback] = useState<null | "correct" | "wrong">(null);
   const navigate = useNavigate();
+  const videoWindow = useRef<Window | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!user) return null;
 
@@ -110,12 +111,29 @@ const Home = () => {
     }
   }
 
+  function handleShowCocomelon() {
+    if (videoWindow.current == null || videoWindow.current.closed) {
+      videoWindow.current = window.open(COCOMELON_URL, "_blank", "noopener");
+      timerRef.current = setTimeout(() => {
+        if (videoWindow.current && !videoWindow.current.closed) {
+          videoWindow.current.close();
+        }
+        videoWindow.current = null;
+        setShowVideo(false);
+        setShowFeedback(null);
+        setInput("");
+        onNextQuestion();
+      }, 180_000); // 3 minutes
+    }
+    setShowVideo(true);
+  }
+
   function onChoiceAnswer(ans: string) {
     if (!session) return;
     const q = currentQuestions()[session.idx] as MathOrScienceQ;
     if ("choices" in q && q.answer.toString().toLowerCase() === ans.toLowerCase()) {
       setShowFeedback("correct");
-      setTimeout(() => setShowVideo(true), 1000);
+      setTimeout(() => handleShowCocomelon(), 1000);
     } else {
       setShowFeedback("wrong");
     }
@@ -127,7 +145,7 @@ const Home = () => {
     const q = currentQuestions()[session.idx] as EnglishQ;
     if ("answer" in q && q.answer.toString().toLowerCase() === input.trim().toLowerCase()) {
       setShowFeedback("correct");
-      setTimeout(() => setShowVideo(true), 1000);
+      setTimeout(() => handleShowCocomelon(), 1000);
     } else {
       setShowFeedback("wrong");
     }
@@ -157,6 +175,14 @@ const Home = () => {
     setShowFeedback(null);
     setShowVideo(false);
     setInput("");
+    // Clean up when quitting (close any video tab and timer)
+    if (videoWindow.current && !videoWindow.current.closed) {
+      videoWindow.current.close();
+    }
+    videoWindow.current = null;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
   }
 
   // Main Content Render
@@ -209,29 +235,23 @@ const Home = () => {
   } else if (session && showVideo) {
     mainContent = (
       <div className="flex flex-col items-center justify-center w-full gap-4 mt-10">
-        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with Cocomelon!</div>
-        <div className="w-full flex justify-center">
-          <iframe
-            width="360"
-            height="203"
-            src={COCOMELON_VIDEO}
-            title="Cocomelon Video"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            className="rounded-lg border shadow-lg"
-          ></iframe>
-        </div>
+        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with Cocomelon!<br />A new tab has been opened.</div>
+        <div className="text-gray-600">(The video will close after 3 minutes and the next question will appear.)</div>
         <button
           className="mt-6 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold rounded shadow"
           onClick={() => {
+            if (videoWindow.current && !videoWindow.current.closed) {
+              videoWindow.current.close();
+            }
+            videoWindow.current = null;
+            if (timerRef.current) clearTimeout(timerRef.current);
             setShowVideo(false);
             setShowFeedback(null);
             setInput("");
-            // Move to next question
             onNextQuestion();
           }}
         >
-          Continue
+          Skip Video & Continue
         </button>
         <button
           className="inline-block mt-2 px-4 py-1 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded"
