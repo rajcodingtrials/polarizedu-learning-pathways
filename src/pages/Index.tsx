@@ -5,7 +5,7 @@ import PolarisStar from "../components/PolarisStar";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Use uploaded image as banner
+// Banner image of an elder holding a child's hand walking away
 const polarisImg = "/lovable-uploads/b1b7b003-3446-4a61-a3df-25d57c681252.png";
 
 const Index = () => {
@@ -35,7 +35,9 @@ const Index = () => {
       {/* Top Black Bar */}
       <div className="w-full h-12 bg-black flex items-center px-8 justify-start">
         {/* Company Title */}
-        <span className="text-white text-lg font-bold tracking-wide mr-10">PolarizEd</span>
+        <span className="text-white text-lg font-bold tracking-wide mr-10">
+          PolarizEd
+        </span>
         {/* Left Tabs */}
         <div className="flex space-x-6">
           <Link to="/our-story" className="text-white text-base font-medium hover:underline focus:underline transition">Our Story</Link>
@@ -43,11 +45,11 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Banner image */}
+      {/* Banner image below black bar, full width */}
       <div className="w-full flex justify-center bg-white">
         <img
           src={polarisImg}
-          alt="Elder holding hand of a child"
+          alt="Elder holding hand of a child walking away"
           className="w-full object-cover max-h-80"
           style={{ objectPosition: "center top" }}
         />
@@ -92,3 +94,4 @@ const Index = () => {
 };
 
 export default Index;
+
