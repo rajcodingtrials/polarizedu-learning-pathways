@@ -4,8 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Use the uploaded image as the banner
-const bannerImg = "/lovable-uploads/fa68361f-cc8c-4497-b698-957f83e67715.png";
+// Use the most recently uploaded image as the banner
+const bannerImg = "/lovable-uploads/86f25f76-b812-4d96-b7cc-b73be2c1a501.png";
 
 const Index = () => {
   const { login } = useAuth();
@@ -49,12 +49,12 @@ const Index = () => {
         <img
           src={bannerImg}
           alt="Banner"
-          className="w-full h-auto max-h-[330px] object-cover md:object-fill"
+          className="w-full h-auto"
           style={{
             display: "block",
             width: "100vw",
             maxWidth: "100%",
-            objectFit: "cover",
+            objectFit: "contain",
             objectPosition: "center",
             marginLeft: "calc(-50vw + 50%)",
           }}
