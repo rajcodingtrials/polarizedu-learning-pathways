@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 // Use the uploaded image as the banner
-const polarisImg = "/lovable-uploads/5c0a69c6-3b54-41da-9195-5296461296d4.png";
+const polarisImg = "/lovable-uploads/af694c34-4686-4d97-bd44-182ea0c1a533.png";
 
 const Index = () => {
   const { login } = useAuth();
@@ -49,11 +48,11 @@ const Index = () => {
         <img
           src={polarisImg}
           alt="Banner"
-          className="w-full h-[min(40vw,400px)] object-contain"
+          className="w-full max-h-[350px] object-contain"
           style={{
             objectFit: "contain",
             objectPosition: "center",
-            backgroundColor: "#fff"
+            backgroundColor: "#fff",
           }}
         />
       </div>
