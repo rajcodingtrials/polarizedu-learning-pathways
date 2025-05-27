@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthContext";
 
@@ -7,7 +8,8 @@ const bannerImg = "/lovable-uploads/86f25f76-b812-4d96-b7cc-b73be2c1a501.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  // Remove "login" from destructuring, since it's not provided by useAuth
+  const { user } = useAuth();
 
   // Remove all local state/auth logic & forms from before
   return (
@@ -54,3 +56,4 @@ const Index = () => {
   );
 };
 export default Index;
+
