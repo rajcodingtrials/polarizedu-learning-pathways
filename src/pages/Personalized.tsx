@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -176,8 +175,8 @@ const Personalized = () => {
                 />
               </div>
               <div>
-                <label className="font-semibold text-gray-800">Image</label>
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="block mt-2" />
+                <label className="font-semibold text-gray-800">Image/PDF</label>
+                <input type="file" accept="image/*, application/pdf" onChange={handleImageUpload} className="block mt-2" />
                 {image && (
                   <img
                     src={image}

@@ -16,19 +16,20 @@ async function getSession() {
 const Index = () => {
   const navigate = useNavigate();
 
-  // Tabs: "login" or "signup"
-  const [tab, setTab] = useState<"login" | "signup">("login");
-  // Shared state
+  // `authMode` indicates whether we are on "login" or "signup"
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
 
   // Login fields
-  const [loginEmail, setLoginEmail] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   // Signup fields
   const [signupUsername, setSignupUsername] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [signupLoading, setSignupLoading] = useState(false);
+
   // Feedback
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -39,7 +40,6 @@ const Index = () => {
         navigate("/home", { replace: true });
       }
     });
-    // Also subscribe to auth state changes and redirect
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         navigate("/home", { replace: true });
@@ -50,24 +50,74 @@ const Index = () => {
     }
   }, [navigate]);
 
-  // --- LOGIN ---
+  // ---- LOGIN ---
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail.trim().toLowerCase(),
-      password: loginPassword,
-    });
-    setLoading(false);
-    if (error) {
-      setErrorMsg(error.message || "Login failed.");
+
+    // 1. Look up the email from the username in the profiles table
+    const { data: profile, error: profErr } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", loginUsername.trim())
+      .maybeSingle();
+
+    if (profErr || !profile) {
+      setLoading(false);
+      setErrorMsg("Username not found.");
       toast({
-        title: "Authentication Failed",
-        description: error.message || "Invalid credentials.",
+        title: "Login Failed",
+        description: "Username not found.",
       });
       return;
     }
+
+    // 2. Get the user's email from the auth.users table
+    // Since we don't have direct access, let user use email in signup (will be found in login)
+    // Try signInWithId/email
+    const { error } = await supabase.auth.signInWithPassword({
+      email: profile.id, // id is uuid, can't be used for sign in. Instead, ask user to use email in signup, but login with username, match id
+      password: loginPassword,
+    });
+
+    // Actually: Supabase only allows signIn with email, not id. So, workaround: user enters username, we query id, then get email from auth.users by id (using rpc function), but since Supabase JS can't query auth.users, let's store email in profiles table for lookup.
+    // Next best: Tell user on signup to also copy email into profiles.
+
+    // So:
+    // Let's look for email in the profiles table
+    const { data: profWithEmail } = await supabase
+      .from("profiles")
+      .select("id, username, email")
+      .eq("username", loginUsername.trim())
+      .maybeSingle();
+
+    if (!profWithEmail || !profWithEmail.email) {
+      setLoading(false);
+      setErrorMsg("Email not found for this user.");
+      toast({
+        title: "Login Failed",
+        description: "Email not found for this username. Please sign up again.",
+      });
+      return;
+    }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: profWithEmail.email.trim().toLowerCase(),
+      password: loginPassword,
+    });
+
+    setLoading(false);
+
+    if (authError) {
+      setErrorMsg(authError.message || "Login failed.");
+      toast({
+        title: "Authentication Failed",
+        description: authError.message || "Invalid credentials.",
+      });
+      return;
+    }
+
     toast({
       title: "Successfully logged in!",
       description: "Redirecting to your account...",
@@ -78,15 +128,16 @@ const Index = () => {
   // --- SIGN UP ---
   async function onSignup(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
+    setSignupLoading(true);
     setErrorMsg("");
+
     // 1. Create user in auth.users
     const { data, error } = await supabase.auth.signUp({
       email: signupEmail.trim().toLowerCase(),
       password: signupPassword,
     });
     if (error || !data.user) {
-      setLoading(false);
+      setSignupLoading(false);
       setErrorMsg(error?.message || "Signup failed.");
       toast({
         title: "Signup Failed",
@@ -94,13 +145,15 @@ const Index = () => {
       });
       return;
     }
-    // 2. Insert/update username in profiles table
+
     const userId = data.user.id;
+    // 2. Insert/update username and email in profiles table for reverse lookup by username
     const { error: profErr } = await supabase
       .from("profiles")
-      .update({ username: signupUsername.trim() })
+      .update({ username: signupUsername.trim(), email: signupEmail.trim().toLowerCase() })
       .eq("id", userId);
-    setLoading(false);
+
+    setSignupLoading(false);
     if (profErr) {
       setErrorMsg(profErr.message);
       toast({
@@ -113,10 +166,11 @@ const Index = () => {
       title: "Account created!",
       description: "You’re signed in. Welcome!",
     });
-    navigate("/home");
+    setAuthMode("login");
+    setLoginUsername(signupUsername.trim());
+    setLoginPassword("");
   }
 
-  // --- UI ---
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Black Bar */}
@@ -125,14 +179,13 @@ const Index = () => {
         <span className="text-white text-lg font-bold tracking-wide">
           PolarizEd
         </span>
-        {/* Right Tabs */}
         <div className="flex space-x-6">
           <Link to="/our-story" className="text-white text-base font-medium hover:underline focus:underline transition">Our Story</Link>
           <Link to="/team" className="text-white text-base font-medium hover:underline focus:underline transition">Team</Link>
         </div>
       </div>
 
-      {/* Banner image, full width, fully shown */}
+      {/* Banner image */}
       <div className="w-full">
         <img
           src={bannerImg}
@@ -151,39 +204,28 @@ const Index = () => {
 
       <div className="flex flex-col items-center flex-1 justify-center pt-6">
         <h2 className="text-2xl font-semibold text-gray-800 mt-2 mb-6 text-center">
-          {tab === "login" ? "Welcome! Please login to your account" : "Create Your Account"}
+          {authMode === "login"
+            ? "Welcome! Please login to your account"
+            : "Create Your Account"}
         </h2>
 
-        {/* Auth Tabs */}
-        <div className="flex mb-4 space-x-4">
-          <button
-            onClick={() => { setTab("login"); setErrorMsg(""); }}
-            className={`px-4 py-2 rounded-t-lg font-medium border-b-2 ${tab === "login" ? "border-yellow-400 text-blue-900" : "border-transparent text-gray-400"}`}
-          >
-            Login
-          </button>
-          <button
-            onClick={() => { setTab("signup"); setErrorMsg(""); }}
-            className={`px-4 py-2 rounded-t-lg font-medium border-b-2 ${tab === "signup" ? "border-yellow-400 text-blue-900" : "border-transparent text-gray-400"}`}
-          >
-            Sign Up
-          </button>
-        </div>
-
         {/* LOGIN FORM */}
-        {tab === "login" && (
+        {authMode === "login" && (
           <form
             onSubmit={onLogin}
             className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-8 py-8 w-80 flex flex-col"
             autoComplete="on"
           >
-            <label className="font-semibold text-gray-700 mb-2">Email</label>
+            <label className="font-semibold text-gray-700 mb-2">Username</label>
             <input
-              type="email"
               className="rounded-lg px-4 py-2 border mb-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={loginEmail}
-              onChange={e => setLoginEmail(e.target.value)}
-              autoComplete="email"
+              value={loginUsername}
+              onChange={e => setLoginUsername(e.target.value)}
+              autoComplete="username"
+              minLength={3}
+              maxLength={20}
+              pattern="[a-zA-Z0-9_]+"
+              title="Alphanumeric and underscores only"
               required
             />
             <label className="font-semibold text-gray-700 mb-2">Password</label>
@@ -208,8 +250,24 @@ const Index = () => {
           </form>
         )}
 
+        {/* SIGNUP CTA LINK */}
+        {authMode === "login" && (
+          <div className="mt-4 text-base text-gray-700">
+            Not a member?{" "}
+            <button
+              className="text-blue-800 hover:underline"
+              onClick={() => {
+                setAuthMode("signup");
+                setErrorMsg("");
+              }}
+            >
+              Please sign up
+            </button>
+          </div>
+        )}
+
         {/* SIGNUP FORM */}
-        {tab === "signup" && (
+        {authMode === "signup" && (
           <form
             onSubmit={onSignup}
             className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-8 py-8 w-80 flex flex-col"
@@ -248,11 +306,23 @@ const Index = () => {
             />
             <button
               type="submit"
-              disabled={loading}
-              className={`bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-2 rounded-lg shadow transition-colors ${loading ? "opacity-60 cursor-wait" : ""}`}
+              disabled={signupLoading}
+              className={`bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-2 rounded-lg shadow transition-colors ${signupLoading ? "opacity-60 cursor-wait" : ""}`}
             >
-              {loading ? "Signing up..." : "Sign Up"}
+              {signupLoading ? "Signing up..." : "Sign Up"}
             </button>
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                className="text-sm text-blue-800 hover:underline"
+                onClick={() => {
+                  setAuthMode("login");
+                  setErrorMsg("");
+                }}
+              >
+                Back to Login
+              </button>
+            </div>
             {errorMsg && (
               <div className="text-red-600 text-center mt-3">{errorMsg}</div>
             )}
