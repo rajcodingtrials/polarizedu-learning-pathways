@@ -12,6 +12,7 @@ import OurStory from "./pages/OurStory";
 import Team from "./pages/Team";
 import { AuthProvider } from "./components/AuthContext";
 import RequireAuth from "./components/RequireAuth";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/our-story" element={<OurStory />} />
             <Route path="/team" element={<Team />} />
             <Route
