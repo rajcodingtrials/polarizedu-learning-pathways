@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthContext";
 
 // Use the most recently uploaded image as the banner
 const bannerImg = "/lovable-uploads/86f25f76-b812-4d96-b7cc-b73be2c1a501.png";
 
-// Utility: get user session
-async function getSession() {
-  const { data } = await supabase.auth.getSession();
-  return data.session;
-}
-
 const Index = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  // `authMode` indicates whether we are on "login" or "signup"
+  // Auth mode: login or signup
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
 
   // Login fields
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Signup fields
   const [signupUsername, setSignupUsername] = useState("");
@@ -29,100 +25,57 @@ const Index = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [signupLoading, setSignupLoading] = useState(false);
 
-  // Feedback
-  const [errorMsg, setErrorMsg] = useState("");
+  // Demo mock "user database"
+  const [users, setUsers] = useState<{ username: string; email: string; password: string; name: string }[]>([
+    { username: "betty", password: "betty123", email: "betty@example.com", name: "Betty" },
+    { username: "ethan", password: "ethan123", email: "ethan@example.com", name: "Ethan" }
+  ]);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    getSession().then((session) => {
-      if (session) {
-        navigate("/home", { replace: true });
-      }
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/home", { replace: true });
-      }
-    });
-    return () => {
-      listener?.subscription.unsubscribe();
-    }
-  }, [navigate]);
-
-  // ---- LOGIN ---
+  // Handle Login
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
-
-    // Use Supabase auth to login with email and password
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: loginEmail.trim().toLowerCase(),
-      password: loginPassword,
-    });
-
+    const userFound = users.find(u =>
+      u.email.trim().toLowerCase() === loginEmail.trim().toLowerCase() &&
+      u.password === loginPassword
+    );
     setLoading(false);
-
-    if (authError) {
-      setErrorMsg(authError.message || "Login failed.");
-      toast({
-        title: "Authentication Failed",
-        description: authError.message || "Invalid credentials.",
-      });
-      return;
+    if (userFound) {
+      // Call AuthContext login (mock)
+      await login(userFound.username, userFound.password);
+      navigate("/home");
+    } else {
+      setErrorMsg("Invalid email or password.");
     }
-
-    toast({
-      title: "Successfully logged in!",
-      description: "Redirecting to your account...",
-    });
-    navigate("/home");
   }
 
-  // --- SIGN UP ---
+  // Handle Signup
   async function onSignup(e: React.FormEvent) {
     e.preventDefault();
     setSignupLoading(true);
     setErrorMsg("");
-
-    // 1. Create user in auth.users
-    const { data, error } = await supabase.auth.signUp({
-      email: signupEmail.trim().toLowerCase(),
-      password: signupPassword,
-    });
-    if (error || !data.user) {
+    // Simple check
+    if (users.some(u => u.email.trim().toLowerCase() === signupEmail.trim().toLowerCase())) {
       setSignupLoading(false);
-      setErrorMsg(error?.message || "Signup failed.");
-      toast({
-        title: "Signup Failed",
-        description: error?.message || "Unable to create account.",
-      });
+      setErrorMsg("Email already in use.");
       return;
     }
-
-    const userId = data.user.id;
-    // 2. Insert/update username and email in profiles table for reverse lookup by username
-    const { error: profErr } = await supabase
-      .from("profiles")
-      .update({ username: signupUsername.trim(), email: signupEmail.trim().toLowerCase() })
-      .eq("id", userId);
-
+    if (signupPassword.length < 6) {
+      setSignupLoading(false);
+      setErrorMsg("Password must be at least 6 characters.");
+      return;
+    }
+    // Add user to "db"
+    setUsers([
+      ...users,
+      { username: signupUsername.trim(), email: signupEmail.trim().toLowerCase(), password: signupPassword, name: signupUsername.trim() }
+    ]);
     setSignupLoading(false);
-    if (profErr) {
-      setErrorMsg(profErr.message);
-      toast({
-        title: "Signup Error",
-        description: "User created, but profile update failed: " + profErr.message,
-      });
-      return;
-    }
-    toast({
-      title: "Account created!",
-      description: "You’re signed in. Welcome!",
-    });
     setAuthMode("login");
     setLoginEmail(signupEmail.trim());
     setLoginPassword("");
+    setErrorMsg("Account created! Please log in.");
   }
 
   return (
@@ -138,7 +91,6 @@ const Index = () => {
           <Link to="/team" className="text-white text-base font-medium hover:underline focus:underline transition">Team</Link>
         </div>
       </div>
-
       {/* Banner image */}
       <div className="w-full">
         <img
@@ -155,14 +107,12 @@ const Index = () => {
           }}
         />
       </div>
-
       <div className="flex flex-col items-center flex-1 justify-center pt-6">
         <h2 className="text-2xl font-semibold text-gray-800 mt-2 mb-6 text-center">
           {authMode === "login"
-            ? "Welcome! Please login to your account"
+            ? "Welcome! Please log in to your account"
             : "Create Your Account"}
         </h2>
-
         {/* LOGIN FORM */}
         {authMode === "login" && (
           <form
@@ -200,7 +150,6 @@ const Index = () => {
             )}
           </form>
         )}
-
         {/* SIGNUP CTA LINK */}
         {authMode === "login" && (
           <div className="mt-4 text-base text-gray-700">
@@ -216,7 +165,6 @@ const Index = () => {
             </button>
           </div>
         )}
-
         {/* SIGNUP FORM */}
         {authMode === "signup" && (
           <form
