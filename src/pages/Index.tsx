@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +20,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
 
   // Login fields
-  const [loginUsername, setLoginUsername] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   // Signup fields
@@ -56,54 +55,9 @@ const Index = () => {
     setLoading(true);
     setErrorMsg("");
 
-    // 1. Look up the email from the username in the profiles table
-    const { data: profile, error: profErr } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", loginUsername.trim())
-      .maybeSingle();
-
-    if (profErr || !profile) {
-      setLoading(false);
-      setErrorMsg("Username not found.");
-      toast({
-        title: "Login Failed",
-        description: "Username not found.",
-      });
-      return;
-    }
-
-    // 2. Get the user's email from the auth.users table
-    // Since we don't have direct access, let user use email in signup (will be found in login)
-    // Try signInWithId/email
-    const { error } = await supabase.auth.signInWithPassword({
-      email: profile.id, // id is uuid, can't be used for sign in. Instead, ask user to use email in signup, but login with username, match id
-      password: loginPassword,
-    });
-
-    // Actually: Supabase only allows signIn with email, not id. So, workaround: user enters username, we query id, then get email from auth.users by id (using rpc function), but since Supabase JS can't query auth.users, let's store email in profiles table for lookup.
-    // Next best: Tell user on signup to also copy email into profiles.
-
-    // So:
-    // Let's look for email in the profiles table
-    const { data: profWithEmail } = await supabase
-      .from("profiles")
-      .select("id, username, email")
-      .eq("username", loginUsername.trim())
-      .maybeSingle();
-
-    if (!profWithEmail || !profWithEmail.email) {
-      setLoading(false);
-      setErrorMsg("Email not found for this user.");
-      toast({
-        title: "Login Failed",
-        description: "Email not found for this username. Please sign up again.",
-      });
-      return;
-    }
-
+    // Use Supabase auth to login with email and password
     const { error: authError } = await supabase.auth.signInWithPassword({
-      email: profWithEmail.email.trim().toLowerCase(),
+      email: loginEmail.trim().toLowerCase(),
       password: loginPassword,
     });
 
@@ -167,7 +121,7 @@ const Index = () => {
       description: "You’re signed in. Welcome!",
     });
     setAuthMode("login");
-    setLoginUsername(signupUsername.trim());
+    setLoginEmail(signupEmail.trim());
     setLoginPassword("");
   }
 
@@ -216,16 +170,13 @@ const Index = () => {
             className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-8 py-8 w-80 flex flex-col"
             autoComplete="on"
           >
-            <label className="font-semibold text-gray-700 mb-2">Username</label>
+            <label className="font-semibold text-gray-700 mb-2">Email</label>
             <input
+              type="email"
               className="rounded-lg px-4 py-2 border mb-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={loginUsername}
-              onChange={e => setLoginUsername(e.target.value)}
-              autoComplete="username"
-              minLength={3}
-              maxLength={20}
-              pattern="[a-zA-Z0-9_]+"
-              title="Alphanumeric and underscores only"
+              value={loginEmail}
+              onChange={e => setLoginEmail(e.target.value)}
+              autoComplete="email"
               required
             />
             <label className="font-semibold text-gray-700 mb-2">Password</label>
