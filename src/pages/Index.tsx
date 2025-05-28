@@ -75,25 +75,31 @@ const Index = () => {
           <Link to="/team" className="text-white text-base font-medium hover:underline focus:underline transition">Team</Link>
         </div>
       </div>
-      {/* Banner image */}
-      <div className="w-full">
+      
+      {/* Banner image - Fixed to ensure it displays properly */}
+      <div className="w-full overflow-hidden">
         <img
           src={bannerImg}
-          alt="Banner"
-          className="w-full h-auto"
+          alt="PolarizEd Banner"
+          className="w-full h-auto max-w-none"
           style={{
             display: "block",
-            width: "100vw",
-            maxWidth: "100%",
-            objectFit: "contain",
+            width: "100%",
+            objectFit: "cover",
             objectPosition: "center",
-            marginLeft: "calc(-50vw + 50%)",
+          }}
+          onError={(e) => {
+            console.error("Banner image failed to load:", bannerImg);
+            // Fallback - hide the image container if it fails to load
+            const target = e.target as HTMLImageElement;
+            target.style.display = "none";
           }}
         />
       </div>
+      
       {/* Login/Signup Form */}
-      <div className="flex flex-col items-center flex-1 justify-start pt-10">
-        <div className="w-[340px] bg-white/95 rounded-xl shadow-xl px-8 py-8 flex flex-col">
+      <div className="flex flex-col items-center flex-1 justify-start pt-10 px-4">
+        <div className="w-full max-w-[340px] bg-white/95 rounded-xl shadow-xl px-8 py-8 flex flex-col">
           <h2 className="text-2xl font-semibold text-center mb-6">{authMode === "login" ? "Sign In" : "Sign Up"}</h2>
           <form onSubmit={authMode === "login" ? handleLogin : handleSignup}>
             <label className="block mb-2 font-semibold text-gray-700">Email</label>
