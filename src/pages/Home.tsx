@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 const motivational = {
   betty: "Hi Betty, welcome back! You've made great progress on PolarizEdu.",
@@ -190,44 +192,115 @@ const Home = () => {
 
   if (showChoices || !session) {
     mainContent = (
-      <div className="flex flex-col items-center w-full">
-        <h1 className="text-3xl font-extrabold text-blue-900 mb-2">
-          Welcome {user.name}!
-        </h1>
-        <p className="mb-8 text-lg text-gray-700 text-center">{welcomeMsg}</p>
-        <button
-          onClick={handleLearnClick}
-          className="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold text-lg px-8 py-3 rounded-lg mb-2 shadow-lg transition-colors"
-        >
-          Let's Learn
-        </button>
-        <div className="mt-6 flex flex-col gap-4 w-full max-w-md">
-          <h2 className="text-lg font-semibold mb-4 text-center text-blue-800">What do you want to learn today?</h2>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => handleChoice("Math")}
-              className="bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-2 rounded-lg shadow"
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              Our Learning Library
+            </h1>
+            <p className="text-lg text-gray-600 mb-2">
+              Welcome {user.name}!
+            </p>
+            <p className="text-base text-gray-500 max-w-2xl mx-auto">
+              {welcomeMsg}
+            </p>
+            <p className="text-lg text-gray-600 mt-4">
+              With interactive lessons and activities, find the best resource for your student.
+            </p>
+            <Button 
+              onClick={handleLearnClick}
+              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg"
             >
-              <b>Math</b>
-            </button>
-            <button
-              onClick={() => handleChoice("English")}
-              className="bg-green-200 hover:bg-green-300 text-green-900 font-bold py-2 rounded-lg shadow"
-            >
-              <b>English</b>
-            </button>
-            <button
-              onClick={() => handleChoice("Science")}
-              className="bg-pink-200 hover:bg-pink-300 text-pink-900 font-bold py-2 rounded-lg shadow"
-            >
-              <b>Science</b>
-            </button>
-            <button
-              onClick={() => navigate("/personalized")}
-              className="bg-purple-200 hover:bg-purple-300 text-purple-900 font-bold py-2 rounded-lg shadow"
-            >
-              <b>Personalized</b>
-            </button>
+              Dive right in
+            </Button>
+          </div>
+
+          {/* Subject Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Math Card */}
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">📚</span>
+                </div>
+                <CardTitle className="text-2xl font-bold text-blue-600">Math</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
+                  Build strong math foundations with interactive exercises. Practice addition, subtraction, and problem-solving skills through engaging visual problems.
+                </CardDescription>
+                <Button 
+                  onClick={() => handleChoice("Math")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full"
+                >
+                  Start Math Today
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* English Card */}
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">📝</span>
+                </div>
+                <CardTitle className="text-2xl font-bold text-green-600">Worksheets</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
+                  We've got a worksheet for anything your student is learning! Practice spelling, reading, and vocabulary with fun visual exercises.
+                </CardDescription>
+                <Button 
+                  onClick={() => handleChoice("English")}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-full"
+                >
+                  Check it out
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Science Card */}
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">🎮</span>
+                </div>
+                <CardTitle className="text-2xl font-bold text-purple-600">Games</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
+                  Transform study time into an adventure! Learn about nature, animals, and science through immersive visual identification games.
+                </CardDescription>
+                <Button 
+                  onClick={() => handleChoice("Science")}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-full"
+                >
+                  Play now
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Personalized Card */}
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">✂️</span>
+                </div>
+                <CardTitle className="text-2xl font-bold text-orange-600">Activities</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
+                  Our curated activities bring topics to life through hands-on experiments, creative projects, and personalized learning experiences.
+                </CardDescription>
+                <Button 
+                  onClick={() => navigate("/personalized")}
+                  className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2 rounded-full"
+                >
+                  Make something now
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -393,8 +466,8 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="absolute top-4 right-6">
+    <div className="min-h-screen bg-white relative">
+      <div className="absolute top-4 right-6 z-10">
         <button
           onClick={logout}
           className="text-sm bg-gray-100 hover:bg-blue-100 px-4 py-2 rounded-lg border shadow text-blue-900 font-semibold"
@@ -402,9 +475,7 @@ const Home = () => {
           Log out
         </button>
       </div>
-      <div className="bg-white/95 px-10 py-12 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col items-center min-h-[420px]">
-        {mainContent}
-      </div>
+      {mainContent}
     </div>
   );
 };
