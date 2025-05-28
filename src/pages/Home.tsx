@@ -3,9 +3,9 @@ import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const motivational = {
-  betty: "Hi Betty, welcome back! You’ve made great progress on PolarizEdu.",
+  betty: "Hi Betty, welcome back! You've made great progress on PolarizEdu.",
   ethan:
-    "Hope your vacation went great. Let’s start from where you left off last week. You’ve made a great job learning about making effective conversations.",
+    "Hope your vacation went great. Let's start from where you left off last week. You've made a great job learning about making effective conversations.",
 };
 
 // Sample question sets for Math/English/Science beginner-friendly
@@ -54,8 +54,8 @@ const scienceQuestions = [
   },
 ];
 
-// EMBEDDED YOUTUBE VIDEO ID for Cocomelon Wheels on the Bus
-const COCOMELON_EMBED_URL = "https://www.youtube.com/embed/rHvCQ_gn1bQ?autoplay=1";
+// Updated YouTube embed URL without autoplay - using a popular kids educational video
+const EDUCATIONAL_EMBED_URL = "https://www.youtube.com/embed/D0LvT8gZJao";
 
 type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
 type EnglishQ = { question: string; img: string; answer: string; hint: string; };
@@ -108,7 +108,7 @@ const Home = () => {
     }
   }
 
-  // NEW: Show embedded Cocomelon video, auto-advance after 3 minutes
+  // Updated: Show embedded educational video, auto-advance after 3 minutes
   function handleShowCocomelon() {
     setShowVideo(true);
     // Set timer to auto-proceed after 3 minutes (180_000 ms)
@@ -199,7 +199,7 @@ const Home = () => {
           onClick={handleLearnClick}
           className="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold text-lg px-8 py-3 rounded-lg mb-2 shadow-lg transition-colors"
         >
-          Let’s Learn
+          Let's Learn
         </button>
         <div className="mt-6 flex flex-col gap-4 w-full max-w-md">
           <h2 className="text-lg font-semibold mb-4 text-center text-blue-800">What do you want to learn today?</h2>
@@ -235,16 +235,16 @@ const Home = () => {
   } else if (session && showVideo) {
     mainContent = (
       <div className="flex flex-col items-center justify-center w-full gap-4 mt-10">
-        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with Cocomelon!</div>
+        <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with an educational video!</div>
         <div className="text-gray-600">(Your video will end after 3 minutes and the next question will appear.)</div>
         <div className="mt-6 aspect-video w-full max-w-xl rounded-xl overflow-hidden shadow-lg border-4 border-yellow-200 bg-black">
           <iframe
             width="100%"
             height="315"
-            src={COCOMELON_EMBED_URL}
-            title="Cocomelon Wheels on the Bus"
+            src={EDUCATIONAL_EMBED_URL}
+            title="Educational Video"
             frameBorder="0"
-            allow="autoplay; encrypted-media"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
         </div>

@@ -11,15 +11,21 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          created_at: string
           id: string
+          updated_at: string
           username: string
         }
         Insert: {
+          created_at?: string
           id: string
-          username: string
+          updated_at?: string
+          username?: string
         }
         Update: {
+          created_at?: string
           id?: string
+          updated_at?: string
           username?: string
         }
         Relationships: []
