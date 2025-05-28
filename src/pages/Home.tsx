@@ -54,8 +54,8 @@ const scienceQuestions = [
   },
 ];
 
-// Updated YouTube embed URL without autoplay - using a popular kids educational video
-const EDUCATIONAL_EMBED_URL = "https://www.youtube.com/embed/D0LvT8gZJao";
+// Updated to use a more reliable educational video that allows embedding
+const EDUCATIONAL_EMBED_URL = "https://www.youtube.com/embed/hFZFjoX2cGg";
 
 type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
 type EnglishQ = { question: string; img: string; answer: string; hint: string; };
@@ -244,8 +244,9 @@ const Home = () => {
             src={EDUCATIONAL_EMBED_URL}
             title="Educational Video"
             frameBorder="0"
-            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
           ></iframe>
         </div>
         <button
