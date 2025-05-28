@@ -3,12 +3,7 @@ import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-
-const motivational = {
-  betty: "Hi Betty, welcome back! You've made great progress on PolarizEdu.",
-  ethan:
-    "Hope your vacation went great. Let's start from where you left off last week. You've made a great job learning about making effective conversations.",
-};
+import { Calculator, BookOpen, Gamepad2, Sparkles } from "lucide-react";
 
 // Sample question sets for Math/English/Science beginner-friendly
 const mathQuestions = [
@@ -62,6 +57,12 @@ const EDUCATIONAL_EMBED_URL = "https://www.youtube.com/embed/hFZFjoX2cGg";
 type MathOrScienceQ = { question: string; img: string; choices: string[]; answer: string; };
 type EnglishQ = { question: string; img: string; answer: string; hint: string; };
 type HomeQuestion = MathOrScienceQ | EnglishQ;
+
+const motivational = {
+  betty: "Hi Betty, welcome back! You've made great progress on PolarizEdu.",
+  ethan:
+    "Hope your vacation went great. Let's start from where you left off last week. You've made a great job learning about making effective conversations.",
+};
 
 const Home = () => {
   const { user, logout } = useAuth();
@@ -222,7 +223,7 @@ const Home = () => {
             <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📚</span>
+                  <Calculator className="w-8 h-8 text-blue-600" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-blue-600">Math</CardTitle>
               </CardHeader>
@@ -243,9 +244,9 @@ const Home = () => {
             <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📝</span>
+                  <BookOpen className="w-8 h-8 text-green-600" />
                 </div>
-                <CardTitle className="text-2xl font-bold text-green-600">Worksheets</CardTitle>
+                <CardTitle className="text-2xl font-bold text-green-600">English</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
@@ -264,9 +265,9 @@ const Home = () => {
             <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">🎮</span>
+                  <Gamepad2 className="w-8 h-8 text-purple-600" />
                 </div>
-                <CardTitle className="text-2xl font-bold text-purple-600">Games</CardTitle>
+                <CardTitle className="text-2xl font-bold text-purple-600">Science</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
@@ -285,9 +286,9 @@ const Home = () => {
             <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">✂️</span>
+                  <Sparkles className="w-8 h-8 text-orange-600" />
                 </div>
-                <CardTitle className="text-2xl font-bold text-orange-600">Activities</CardTitle>
+                <CardTitle className="text-2xl font-bold text-orange-600">Personalized</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed">
