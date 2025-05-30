@@ -3,7 +3,7 @@ import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Calculator, BookOpen, Gamepad2, Sparkles } from "lucide-react";
+import { Calculator, BookOpen, Gamepad2, Sparkles, Timer } from "lucide-react";
 
 // Sample question sets for Math/English/Science beginner-friendly
 const mathQuestions = [
@@ -74,8 +74,10 @@ const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [input, setInput] = useState("");
   const [showFeedback, setShowFeedback] = useState<null | "correct" | "wrong">(null);
+  const [remainingTime, setRemainingTime] = useState(180); // 3 minutes in seconds
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!user) return null;
 
@@ -85,6 +87,13 @@ const Home = () => {
       : user.username === "ethan"
       ? motivational.ethan
       : `Welcome, ${user.name}!`;
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   function handleLearnClick() {
     setShowChoices(true);
@@ -114,6 +123,18 @@ const Home = () => {
   // Updated: Show embedded educational video, auto-advance after 3 minutes
   function handleShowCocomelon() {
     setShowVideo(true);
+    setRemainingTime(180); // Reset to 3 minutes
+    
+    // Start countdown timer that updates every second
+    countdownRef.current = setInterval(() => {
+      setRemainingTime(prev => {
+        if (prev <= 1) {
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     // Set timer to auto-proceed after 3 minutes (180_000 ms)
     timerRef.current = setTimeout(() => {
       setShowVideo(false);
@@ -123,10 +144,11 @@ const Home = () => {
     }, 180_000);
   }
 
-  // Clean up timer on unmount or when video closes early
+  // Clean up timers on unmount or when video closes early
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, []);
 
@@ -158,6 +180,10 @@ const Home = () => {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
     if (!session) return;
     const qlist = currentQuestions();
     if (session.idx + 1 < qlist.length) {
@@ -180,6 +206,10 @@ const Home = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
+    }
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
     }
     setSession(null);
     setShowChoices(true);
@@ -310,7 +340,16 @@ const Home = () => {
     mainContent = (
       <div className="flex flex-col items-center justify-center w-full gap-4 mt-10">
         <div className="text-xl font-semibold text-blue-800 mb-4">Great job! Enjoy a break with an educational video!</div>
-        <div className="text-gray-600">(Your video will end after 3 minutes and the next question will appear.)</div>
+        
+        {/* Timer Display */}
+        <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-lg border-2 border-blue-200">
+          <Timer className="w-5 h-5 text-blue-600" />
+          <span className="text-lg font-bold text-blue-800">
+            Time remaining: {formatTime(remainingTime)}
+          </span>
+        </div>
+        
+        <div className="text-gray-600">(Your video will end automatically when the timer reaches 0:00)</div>
         <div className="mt-6 aspect-video w-full max-w-xl rounded-xl overflow-hidden shadow-lg border-4 border-yellow-200 bg-black">
           <iframe
             width="100%"
@@ -332,6 +371,10 @@ const Home = () => {
             if (timerRef.current) {
               clearTimeout(timerRef.current);
               timerRef.current = null;
+            }
+            if (countdownRef.current) {
+              clearInterval(countdownRef.current);
+              countdownRef.current = null;
             }
             onNextQuestion();
           }}
